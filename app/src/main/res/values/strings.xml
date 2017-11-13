@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">BakingApp</string>
+    <string name="toast_http_error">There was an error handling the request. Please, check your connection and try again.</string>
+</resources>

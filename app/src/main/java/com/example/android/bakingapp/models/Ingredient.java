@@ -1,0 +1,72 @@
+package com.example.android.bakingapp.models;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+/**
+ * Created by lsitec207.neto on 13/11/17.
+ */
+
+public class Ingredient implements Parcelable {
+
+    public Ingredient() {
+    }
+
+    public double getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(double quantity) {
+        this.quantity = quantity;
+    }
+
+    public String getMeasure() {
+        return measure;
+    }
+
+    public void setMeasure(String measure) {
+        this.measure = measure;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    double quantity;
+    String measure;
+    String name;
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeDouble(this.quantity);
+        dest.writeString(this.measure);
+        dest.writeString(this.name);
+    }
+
+    protected Ingredient(Parcel in) {
+        this.quantity = in.readDouble();
+        this.measure = in.readString();
+        this.name = in.readString();
+    }
+
+    public static final Parcelable.Creator<Ingredient> CREATOR = new Parcelable.Creator<Ingredient>() {
+        @Override
+        public Ingredient createFromParcel(Parcel source) {
+            return new Ingredient(source);
+        }
+
+        @Override
+        public Ingredient[] newArray(int size) {
+            return new Ingredient[size];
+        }
+    };
+}
