@@ -12,8 +12,8 @@ public class Step implements Parcelable {
     private int id;
     private String shortDescription;
     private String description;
-    private String videoURLString;
-    private String thumbnailURLString;
+    private String videoURL;
+    private String thumbnailURL;
 
     public int getId() {
         return id;
@@ -40,19 +40,19 @@ public class Step implements Parcelable {
     }
 
     public String getVideoURLString() {
-        return videoURLString;
+        return videoURL;
     }
 
-    public void setVideoURLString(String videoURLString) {
-        this.videoURLString = videoURLString;
+    public void setVideoURLString(String videoURL) {
+        this.videoURL = videoURL;
     }
 
     public String getThumbnailURLString() {
-        return thumbnailURLString;
+        return thumbnailURL;
     }
 
-    public void setThumbnailURLString(String thumbnailURLString) {
-        this.thumbnailURLString = thumbnailURLString;
+    public void setThumbnailURLString(String thumbnailURL) {
+        this.thumbnailURL = thumbnailURL;
     }
 
     @Override
@@ -65,8 +65,8 @@ public class Step implements Parcelable {
         dest.writeInt(this.id);
         dest.writeString(this.shortDescription);
         dest.writeString(this.description);
-        dest.writeString(this.videoURLString);
-        dest.writeString(this.thumbnailURLString);
+        dest.writeString(this.videoURL);
+        dest.writeString(this.thumbnailURL);
     }
 
     public Step() {
@@ -76,8 +76,8 @@ public class Step implements Parcelable {
         this.id = in.readInt();
         this.shortDescription = in.readString();
         this.description = in.readString();
-        this.videoURLString = in.readString();
-        this.thumbnailURLString = in.readString();
+        this.videoURL = in.readString();
+        this.thumbnailURL = in.readString();
     }
 
     public static final Parcelable.Creator<Step> CREATOR = new Parcelable.Creator<Step>() {

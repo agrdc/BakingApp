@@ -9,6 +9,10 @@ import android.os.Parcelable;
 
 public class Ingredient implements Parcelable {
 
+    double quantity;
+    String measure;
+    String ingredient;
+
     public Ingredient() {
     }
 
@@ -29,16 +33,13 @@ public class Ingredient implements Parcelable {
     }
 
     public String getName() {
-        return name;
+        return ingredient;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String ingredient) {
+        this.ingredient = ingredient;
     }
 
-    double quantity;
-    String measure;
-    String name;
 
     @Override
     public int describeContents() {
@@ -49,13 +50,13 @@ public class Ingredient implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeDouble(this.quantity);
         dest.writeString(this.measure);
-        dest.writeString(this.name);
+        dest.writeString(this.ingredient);
     }
 
     protected Ingredient(Parcel in) {
         this.quantity = in.readDouble();
         this.measure = in.readString();
-        this.name = in.readString();
+        this.ingredient = in.readString();
     }
 
     public static final Parcelable.Creator<Ingredient> CREATOR = new Parcelable.Creator<Ingredient>() {

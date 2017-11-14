@@ -14,8 +14,8 @@ public class Recipe implements Parcelable {
 
     private int id;
     private String name;
-    private List<Ingredient> ingredientList = null;
-    private List<Step> stepList = null;
+    private List<Ingredient> ingredients = null;
+    private List<Step> steps = null;
     private int servings;
     private String imageString;
 
@@ -39,19 +39,19 @@ public class Recipe implements Parcelable {
     }
 
     public List<Ingredient> getIngredientList() {
-        return ingredientList;
+        return ingredients;
     }
 
     public void setIngredientList(List<Ingredient> ingredientList) {
-        this.ingredientList = ingredientList;
+        this.ingredients = ingredientList;
     }
 
     public List<Step> getStepList() {
-        return stepList;
+        return steps;
     }
 
     public void setStepList(List<Step> stepList) {
-        this.stepList = stepList;
+        this.steps = stepList;
     }
 
     public int getServings() {
@@ -79,8 +79,8 @@ public class Recipe implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(this.id);
         dest.writeString(this.name);
-        dest.writeTypedList(this.ingredientList);
-        dest.writeList(this.stepList);
+        dest.writeList(this.ingredients);
+        dest.writeList(this.steps);
         dest.writeInt(this.servings);
         dest.writeString(this.imageString);
     }
@@ -89,9 +89,10 @@ public class Recipe implements Parcelable {
     protected Recipe(Parcel in) {
         this.id = in.readInt();
         this.name = in.readString();
-        this.ingredientList = in.createTypedArrayList(Ingredient.CREATOR);
-        this.stepList = new ArrayList<Step>();
-        in.readList(this.stepList, Step.class.getClassLoader());
+        this.ingredients = new ArrayList<>();
+        in.readList(this.ingredients,Ingredient.class.getClassLoader());
+        this.steps = new ArrayList<>();
+        in.readList(this.steps, Step.class.getClassLoader());
         this.servings = in.readInt();
         this.imageString = in.readString();
     }
