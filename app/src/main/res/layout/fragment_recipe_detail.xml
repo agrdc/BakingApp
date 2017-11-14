@@ -23,7 +23,7 @@
             android:id="@+id/tv_detail_recipe_ingredients"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="18sp"
             tools:text="1- wawawwawawa\n2-vacacacc" />
     </ScrollView>
 

@@ -12,7 +12,7 @@ import com.example.android.bakingapp.R;
 
 import com.example.android.bakingapp.models.Step;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Created by lsitec207.neto on 14/11/17.
@@ -22,11 +22,11 @@ public class RecipesDetailAdapter extends RecyclerView.Adapter<RecipesDetailAdap
 
     private String LOG_TAG = RecipesDetailAdapter.class.getSimpleName();
     private Context mContext;
-    private List<Step> mStepsData;
+    private ArrayList<Step> mStepsData;
     private RecipesDetailAdapterOnClickHandler mClickHandler;
 
     public interface RecipesDetailAdapterOnClickHandler {
-        void onRecipeClick(Step step);
+        void onStepClick(ArrayList<Step> stepsList, int stepIndex);
     }
 
     public RecipesDetailAdapter(RecipesDetailAdapterOnClickHandler clickHandler) {
@@ -46,7 +46,7 @@ public class RecipesDetailAdapter extends RecyclerView.Adapter<RecipesDetailAdap
         holder.shortDescTextView.setText((position+1)+"."+mStepsData.get(position).getShortDescription());
     }
 
-    public void setStepsData(List<Step> stepsList) {
+    public void setStepsData(ArrayList<Step> stepsList) {
         mStepsData = stepsList;
         notifyDataSetChanged();
     }
@@ -72,7 +72,7 @@ public class RecipesDetailAdapter extends RecyclerView.Adapter<RecipesDetailAdap
 
         @Override
         public void onClick(View view) {
-
+            mClickHandler.onStepClick(mStepsData,getAdapterPosition());
         }
     }
 }

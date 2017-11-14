@@ -29,8 +29,10 @@ public class RecipesActivity extends AppCompatActivity implements RecipesAdapter
 
     private ArrayList<Recipe> mRecipesList;
     private RecipesAdapter mRecipesAdapter;
-    private String KEY_RECIPES_BUNDLE = "key-recipes-bundle";
+    public static String KEY_RECIPES_BUNDLE = "key-recipes-bundle";
+    public static String KEY_STEP_LIST_DETAIL_EXTRA = "key-step_list_detail-extra";
     public static String KEY_RECIPE_DETAIL_EXTRA = "key-recipe_detail-extra";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +89,7 @@ public class RecipesActivity extends AppCompatActivity implements RecipesAdapter
 
     @Override
     public void onRecipeClick(Recipe recipe) {
-        Log.d(LOG_TAG, "onRecipeClick clicked");
+        Log.d(LOG_TAG, "onRecipeClick");
         Intent recipeDetailIntent = new Intent(this,RecipeDetailActivity.class);
         recipeDetailIntent.putExtra(KEY_RECIPE_DETAIL_EXTRA,recipe);
         startActivity(recipeDetailIntent);
