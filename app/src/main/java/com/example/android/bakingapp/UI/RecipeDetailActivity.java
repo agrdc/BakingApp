@@ -20,9 +20,10 @@ import java.util.List;
 
 public class RecipeDetailActivity extends AppCompatActivity implements RecipesDetailAdapter.RecipesDetailAdapterOnClickHandler {
 
+    private String LOG_TAG = RecipeDetailActivity.class.getSimpleName();
     private Recipe mRecipe;
     private static final String TAG_RECIPE_DETAIL_FRAGMENT = "recipe-detail-fragment";
-    private static final String TAG_RECIPE_DETAIL_STEP_FRAGMENT = "recipe-detail-step-fragment";
+    public static final String TAG_RECIPE_DETAIL_STEP_FRAGMENT = "recipe-detail-step-fragment";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,13 +62,22 @@ public class RecipeDetailActivity extends AppCompatActivity implements RecipesDe
     public void onStepClick(ArrayList<Step> stepsList, int stepIndex) {
         if (getSupportFragmentManager().findFragmentByTag(TAG_RECIPE_DETAIL_STEP_FRAGMENT) == null && mRecipe != null) {
             Bundle bundle = new Bundle();
-            bundle.putParcelableArrayList(RecipesActivity.KEY_STEP_LIST_DETAIL_EXTRA, (ArrayList<Step>) mRecipe.getStepList());
+            bundle.putParcelableArrayList(RecipesActivity.KEY_STEP_LIST_DETAIL_EXTRA, stepsList);
+            bundle.putInt(RecipesActivity.KEY_STEP_INDEX_DETAIL_EXTRA,stepIndex);
             RecipeStepDetailFragment recipeStepDetailFragment = new RecipeStepDetailFragment();
             recipeStepDetailFragment.setArguments(bundle);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, recipeStepDetailFragment, TAG_RECIPE_DETAIL_STEP_FRAGMENT)
-                    .addToBackStack(null)
+                    .addToBackStack("recipe")
                     .commit();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
+            getSupportFragmentManager().popBackStack();
+        }
+        super.onBackPressed();
     }
 }

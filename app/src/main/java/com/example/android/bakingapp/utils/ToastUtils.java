@@ -20,6 +20,7 @@ public class ToastUtils {
             mToast.cancel();
         }
         mToast = Toast.makeText(context,message,length);
+        mToast.show();
     }
 
 }

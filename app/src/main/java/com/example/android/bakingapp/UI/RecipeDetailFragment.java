@@ -32,6 +32,7 @@ public class RecipeDetailFragment extends Fragment {
     private static final String LOG_TAG = RecipeDetailFragment.class.getSimpleName();
     private RecipesDetailAdapter mAdapter;
     private Recipe mRecipe = null;
+    private static final String KEY_RECIPE_DETAIL_BUNDLE = "key-recipe_detail-bundle";
 
     @Nullable
 
@@ -48,7 +49,7 @@ public class RecipeDetailFragment extends Fragment {
         recyclerViewSteps.setLayoutManager(linearLayoutManager);
 
         if (savedInstanceState != null) {
-            mRecipe = savedInstanceState.getParcelable(RecipesActivity.KEY_RECIPE_DETAIL_EXTRA);
+            mRecipe = savedInstanceState.getParcelable(KEY_RECIPE_DETAIL_BUNDLE);
         } else {
             mRecipe = getArguments().getParcelable(RecipesActivity.KEY_RECIPE_DETAIL_EXTRA);
         }
@@ -91,7 +92,10 @@ public class RecipeDetailFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(RecipesActivity.KEY_RECIPE_DETAIL_EXTRA, mRecipe);
+        if (mRecipe!=null)
+        outState.putParcelable(KEY_RECIPE_DETAIL_BUNDLE, mRecipe);
         super.onSaveInstanceState(outState);
     }
+
+
 }

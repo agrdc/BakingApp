@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">BakingApp</string>
     <string name="ingredient_list_title">INGREDIENTS LIST:</string>
+    <string name="previous_step">previous step</string>
+    <string name="next_step">next step</string>
     <string name="toast_http_error">There was an error handling the request. Please, check your connection and try again.</string>
 </resources>

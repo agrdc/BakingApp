@@ -31,6 +31,7 @@ public class RecipesActivity extends AppCompatActivity implements RecipesAdapter
     private RecipesAdapter mRecipesAdapter;
     public static String KEY_RECIPES_BUNDLE = "key-recipes-bundle";
     public static String KEY_STEP_LIST_DETAIL_EXTRA = "key-step_list_detail-extra";
+    public static String KEY_STEP_INDEX_DETAIL_EXTRA = "key-step_index_detail-extra";
     public static String KEY_RECIPE_DETAIL_EXTRA = "key-recipe_detail-extra";
 
 

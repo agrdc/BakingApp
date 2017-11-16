@@ -43,7 +43,7 @@ public class RecipesDetailAdapter extends RecyclerView.Adapter<RecipesDetailAdap
 
     @Override
     public void onBindViewHolder(final RecipesDetailAdapterViewHolder holder, final int position) {
-        holder.shortDescTextView.setText((position+1)+"."+mStepsData.get(position).getShortDescription());
+        holder.shortDescTextView.setText((position) + "." + mStepsData.get(position).getShortDescription());
     }
 
     public void setStepsData(ArrayList<Step> stepsList) {
@@ -72,7 +72,7 @@ public class RecipesDetailAdapter extends RecyclerView.Adapter<RecipesDetailAdap
 
         @Override
         public void onClick(View view) {
-            mClickHandler.onStepClick(mStepsData,getAdapterPosition());
+            mClickHandler.onStepClick(mStepsData, getAdapterPosition());
         }
     }
 }
