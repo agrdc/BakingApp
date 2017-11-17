@@ -19,6 +19,7 @@ import com.example.android.bakingapp.adapter.RecipesDetailAdapter;
 import com.example.android.bakingapp.models.Ingredient;
 import com.example.android.bakingapp.models.Recipe;
 import com.example.android.bakingapp.models.Step;
+import com.example.android.bakingapp.widget.UpdateWidgetService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,7 @@ public class RecipeDetailFragment extends Fragment {
         }
         if (mRecipe != null) {
             loadIngredientsIntoUI(mRecipe.getIngredientList(), ingredientsTextView);
-            loadStepsIntoUI((ArrayList<Step>)mRecipe.getStepList());
+            loadStepsIntoUI((ArrayList<Step>) mRecipe.getStepList());
         }
         return rootView;
     }
@@ -67,14 +68,20 @@ public class RecipeDetailFragment extends Fragment {
     }
 
     private void loadIngredientsIntoUI(List<Ingredient> ingredientsList, TextView ingredientsTextView) {
-        if (ingredientsList != null)
+        if (ingredientsList != null) {
+            ArrayList<String> ingredientsListString = new ArrayList<>();
             for (int x = 0; x < ingredientsList.size(); x++) {
                 Ingredient i = ingredientsList.get(x);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     if (x == ingredientsList.size() - 1) {
-                        ingredientsTextView.append(Html.fromHtml("-<b>" + i.getName() +
-                                "</b>" + "<br>" + "    Quantity: " + i.getQuantity() + " " + i.getMeasure(), 0));
+                        CharSequence text = Html.fromHtml("-<b>" + i.getName() +
+                                "</b>" + "<br>" + "    Quantity: " + i.getQuantity() + " " + i.getMeasure(), 0);
+                        ingredientsListString.add(text.toString());
+                        ingredientsTextView.append(text);
                     } else {
+                        CharSequence text = Html.fromHtml("-<b>" + i.getName() +
+                                "</b>" + "<br>" + "    Quantity: " + i.getQuantity() + " " + i.getMeasure(), 0);
+                        ingredientsListString.add(text.toString());
                         ingredientsTextView.append(Html.fromHtml("-<b>" + i.getName() +
                                 "</b>" + "<br>" + "    Quantity: " + i.getQuantity() + " " + i.getMeasure() + "<br>", 0));
                     }
@@ -88,12 +95,14 @@ public class RecipeDetailFragment extends Fragment {
                     }
                 }
             }
+            UpdateWidgetService.startUpdateWidgetService(getContext(),ingredientsListString);
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (mRecipe!=null)
-        outState.putParcelable(KEY_RECIPE_DETAIL_BUNDLE, mRecipe);
+        if (mRecipe != null)
+            outState.putParcelable(KEY_RECIPE_DETAIL_BUNDLE, mRecipe);
         super.onSaveInstanceState(outState);
     }
 

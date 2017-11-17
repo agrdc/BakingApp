@@ -1,5 +1,8 @@
 package com.example.android.bakingapp.UI;
 
+import android.app.Dialog;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,10 +11,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,23 +55,38 @@ public class RecipeStepDetailFragment extends Fragment {
     private static String LOG_TAG = RecipeStepDetailFragment.class.getSimpleName();
     public static String KEY_STEP_LIST_DETAIL_BUNDLE = "key-step_list_detail-bundle";
     public static String KEY_STEP_INDEX_DETAIL_BUNDLE = "key-step_index_detail-bundle";
-    public static String KEY_RECIPE_NAME_DETAIL_BUNDLE = "key-recipe_name_detail-bundle";
     private ArrayList<Step> mStepList;
     private int mStepListIndex;
     private Step mStep;
     private SimpleExoPlayerView mExoPlayerView;
     private SimpleExoPlayer mExoPlayer;
     private String mVideoURL;
-    private ViewGroup mContainer;
+    private Dialog mFullScreenDialog;
+    private View mRootView;
+    private boolean isFullscreen;
+    private boolean isTablet;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_recipe_detail_step, container, false);
+        isTablet = getResources().getBoolean(R.bool.isTablet);
+        isFullscreen = getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+        mRootView = inflater.inflate(R.layout.fragment_recipe_detail_step, container, false);
+        TextView stepDescriptionTextView = (TextView) mRootView.findViewById(R.id.tv_step_description);
+        mExoPlayerView = (SimpleExoPlayerView) mRootView.findViewById(R.id.exoplayer_view);
 
-        mContainer = container;
-        TextView stepDescriptionTextView = (TextView) rootView.findViewById(R.id.tv_step_description);
-        mExoPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.exoplayer_view);
+        final LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) mExoPlayerView.getLayoutParams();
+
+        mFullScreenDialog = new Dialog(getContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
+            public void onBackPressed() {
+                ((ViewGroup) mExoPlayerView.getParent()).removeView(mExoPlayerView);
+                mExoPlayerView.setLayoutParams(params);
+                ((LinearLayout) mRootView.findViewById(R.id.ll_step_detail_fragment)).addView(mExoPlayerView, 1);
+                isFullscreen = false;
+                mFullScreenDialog.dismiss();
+                super.onBackPressed();
+            }
+        };
 
         if (savedInstanceState != null) {
             mStepListIndex = savedInstanceState.getInt(KEY_STEP_INDEX_DETAIL_BUNDLE);
@@ -79,73 +100,81 @@ public class RecipeStepDetailFragment extends Fragment {
             stepDescriptionTextView.setText(mStep.getDescription());
             String thumbnailURL = mStep.getThumbnailURLString();
             if (thumbnailURL != null && !thumbnailURL.equals("")) {
-                Uri thumbnailUri = Uri.parse(thumbnailURL).buildUpon().build();
-                Bitmap thumbnail = null;
-                try {
-                    thumbnail = Picasso.with(getActivity()).load(thumbnailUri).get();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                mExoPlayerView.setDefaultArtwork(thumbnail);
+                final Uri thumbnailUri = Uri.parse(thumbnailURL).buildUpon().build();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Bitmap thumbnail;
+                            thumbnail = Picasso.with(getActivity()).load(thumbnailUri).get();
+                            mExoPlayerView.setDefaultArtwork(thumbnail);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
             }
             mVideoURL = mStep.getVideoURLString();
             Log.d(LOG_TAG, "video url =" + mVideoURL);
             if (mVideoURL == null || mVideoURL.isEmpty()) {
                 mExoPlayerView.setVisibility(View.GONE);
-                TextView noVideoAvailableTextView = (TextView) rootView.findViewById(R.id.tv_no_video_available);
+                TextView noVideoAvailableTextView = (TextView) mRootView.findViewById(R.id.tv_no_video_available);
                 noVideoAvailableTextView.setVisibility(View.VISIBLE);
+                noVideoAvailableTextView.setGravity(Gravity.CENTER);
             }
-            Button previousStepButton = (Button) rootView.findViewById(R.id.btn_previous_step);
-            Button nextStepButton = (Button) rootView.findViewById(R.id.btn_next_step);
-            Button recipeButton = (Button) rootView.findViewById(R.id.btn_return_recipe);
-            previousStepButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (mStepListIndex > 0) {
-                        Bundle bundle = new Bundle();
-                        bundle.putParcelableArrayList(RecipesActivity.KEY_STEP_LIST_DETAIL_EXTRA, mStepList);
-                        bundle.putInt(RecipesActivity.KEY_STEP_INDEX_DETAIL_EXTRA,mStepListIndex-1);
-                        RecipeStepDetailFragment recipeStepDetailFragment = new RecipeStepDetailFragment();
-                        recipeStepDetailFragment.setArguments(bundle);
-                        Log.d(LOG_TAG,"teste"+recipeStepDetailFragment.getId());
-                        getActivity().getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container, recipeStepDetailFragment, RecipeDetailActivity.TAG_RECIPE_DETAIL_STEP_FRAGMENT )
-                                .addToBackStack(null)
-                                .commit();
-                    } else {
-                        ToastUtils.createToast(getActivity(), "You're already on the first step.", Toast.LENGTH_SHORT);
+            if (!isTablet) {
+                Button previousStepButton = (Button) mRootView.findViewById(R.id.btn_previous_step);
+                Button nextStepButton = (Button) mRootView.findViewById(R.id.btn_next_step);
+                Button recipeButton = (Button) mRootView.findViewById(R.id.btn_return_recipe);
+                previousStepButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (mStepListIndex > 0) {
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelableArrayList(RecipesActivity.KEY_STEP_LIST_DETAIL_EXTRA, mStepList);
+                            bundle.putInt(RecipesActivity.KEY_STEP_INDEX_DETAIL_EXTRA, mStepListIndex - 1);
+                            RecipeStepDetailFragment recipeStepDetailFragment = new RecipeStepDetailFragment();
+                            recipeStepDetailFragment.setArguments(bundle);
+                            getActivity().getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.container, recipeStepDetailFragment, RecipeDetailActivity.TAG_RECIPE_DETAIL_STEP_FRAGMENT)
+                                    .addToBackStack(null)
+                                    .commit();
+                        } else {
+                            ToastUtils.createToast(getActivity(), "You're already on the first step.", Toast.LENGTH_SHORT);
+                        }
                     }
-                }
-            });
+                });
 
-            nextStepButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (mStepListIndex < mStepList.size()-1) {
-                        Bundle bundle = new Bundle();
-                        bundle.putParcelableArrayList(RecipesActivity.KEY_STEP_LIST_DETAIL_EXTRA, mStepList);
-                        bundle.putInt(RecipesActivity.KEY_STEP_INDEX_DETAIL_EXTRA,mStepListIndex+1);
-                        RecipeStepDetailFragment recipeStepDetailFragment = new RecipeStepDetailFragment();
-                        recipeStepDetailFragment.setArguments(bundle);
-                        getActivity().getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container, recipeStepDetailFragment, RecipeDetailActivity.TAG_RECIPE_DETAIL_STEP_FRAGMENT )
-                                .addToBackStack(null)
-                                .commit();
-                    } else {
-                        ToastUtils.createToast(getActivity(), "You're already on the last step.", Toast.LENGTH_SHORT);
+                nextStepButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (mStepListIndex < mStepList.size() - 1) {
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelableArrayList(RecipesActivity.KEY_STEP_LIST_DETAIL_EXTRA, mStepList);
+                            bundle.putInt(RecipesActivity.KEY_STEP_INDEX_DETAIL_EXTRA, mStepListIndex + 1);
+                            RecipeStepDetailFragment recipeStepDetailFragment = new RecipeStepDetailFragment();
+                            recipeStepDetailFragment.setArguments(bundle);
+                            getActivity().getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.container, recipeStepDetailFragment, RecipeDetailActivity.TAG_RECIPE_DETAIL_STEP_FRAGMENT)
+                                    .addToBackStack(null)
+                                    .commit();
+                        } else {
+                            ToastUtils.createToast(getActivity(), "You're already on the last step.", Toast.LENGTH_SHORT);
+                        }
                     }
-                }
-            });
+                });
 
-            recipeButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    getActivity().getSupportFragmentManager().popBackStack("recipe", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                }
-            });
+                recipeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        getActivity().getSupportFragmentManager().popBackStack("recipe", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    }
+                });
+            }
         }
-        return rootView;
+        return mRootView;
     }
+
 
     public void initializePlayer() {
         if (mExoPlayer == null && mVideoURL != null && !mVideoURL.isEmpty()) {
@@ -164,6 +193,12 @@ public class RecipeStepDetailFragment extends Fragment {
             mExoPlayer.prepare(videoSource);
             mExoPlayer.setPlayWhenReady(true);
             mExoPlayerView.hideController();
+
+            if (isFullscreen && !isTablet) {
+                ((ViewGroup) mExoPlayerView.getParent()).removeView(mExoPlayerView);
+                mFullScreenDialog.addContentView(mExoPlayerView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                mFullScreenDialog.show();
+            }
         }
     }
 
@@ -211,6 +246,5 @@ public class RecipeStepDetailFragment extends Fragment {
             mExoPlayer = null;
         }
     }
-
 
 }
