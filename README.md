@@ -1,5 +1,5 @@
 # Baking App
-## Baking app, the third project of Android Developer Nanodegree course by UDACITY.
+## the third project of Android Developer Nanodegree course by UDACITY.
 
 ### Project Overview
 
@@ -36,7 +36,7 @@ Retrofit
 
 ### License:
 
-Copyright [2017] [Agnaldo Rodrigues de Carvalho Netto]
+Copyright 2017 Agnaldo Rodrigues de Carvalho Netto
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
