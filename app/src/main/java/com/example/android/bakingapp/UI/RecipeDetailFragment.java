@@ -55,7 +55,7 @@ public class RecipeDetailFragment extends Fragment {
             mRecipe = getArguments().getParcelable(RecipesActivity.KEY_RECIPE_DETAIL_EXTRA);
         }
         if (mRecipe != null) {
-            loadIngredientsIntoUI(mRecipe.getIngredientList(), ingredientsTextView);
+            loadIngredientsIntoUIandWidget(mRecipe.getIngredientList(), ingredientsTextView);
             loadStepsIntoUI((ArrayList<Step>) mRecipe.getStepList());
         }
         return rootView;
@@ -67,9 +67,10 @@ public class RecipeDetailFragment extends Fragment {
         }
     }
 
-    private void loadIngredientsIntoUI(List<Ingredient> ingredientsList, TextView ingredientsTextView) {
+    private void loadIngredientsIntoUIandWidget(List<Ingredient> ingredientsList, TextView ingredientsTextView) {
         if (ingredientsList != null) {
             ArrayList<String> ingredientsListString = new ArrayList<>();
+            ingredientsListString.add(mRecipe.getName());
             for (int x = 0; x < ingredientsList.size(); x++) {
                 Ingredient i = ingredientsList.get(x);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -87,11 +88,15 @@ public class RecipeDetailFragment extends Fragment {
                     }
                 } else {
                     if (x == ingredientsList.size() - 1) {
-                        ingredientsTextView.append(Html.fromHtml("-<b>" + i.getName() +
-                                "</b>" + "<br>" + "    Quantity: " + i.getQuantity() + " " + i.getMeasure()));
+                        CharSequence text = Html.fromHtml("-<b>" + i.getName() +
+                                "</b>" + "<br>" + "    Quantity: " + i.getQuantity() + " " + i.getMeasure());
+                        ingredientsListString.add(text.toString());
+                        ingredientsTextView.append(text);
                     } else {
-                        ingredientsTextView.append(Html.fromHtml("-<b>" + i.getName() +
-                                "</b>" + "<br>" + "    Quantity: " + i.getQuantity() + " " + i.getMeasure() + "<br>"));
+                        CharSequence text = Html.fromHtml("-<b>" + i.getName() +
+                                "</b>" + "<br>" + "    Quantity: " + i.getQuantity() + " " + i.getMeasure() + "<br>");
+                        ingredientsListString.add(text.toString());
+                        ingredientsTextView.append(text);
                     }
                 }
             }
