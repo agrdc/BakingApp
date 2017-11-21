@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.android.bakingapp.R;
@@ -34,6 +35,9 @@ public class RecipeDetailFragment extends Fragment {
     private RecipesDetailAdapter mAdapter;
     private Recipe mRecipe = null;
     private static final String KEY_RECIPE_DETAIL_BUNDLE = "key-recipe_detail-bundle";
+    private static final String KEY_SCROLL_VIEW_BUNDLE = "key-scroll_view-bundle";
+    private ScrollView mIngredientsScrollView;
+    private int[] mIngredientsScrollViewPosition = {0,0};
 
     @Nullable
 
@@ -43,7 +47,7 @@ public class RecipeDetailFragment extends Fragment {
 
         TextView ingredientsTextView = (TextView) rootView.findViewById(R.id.tv_detail_recipe_ingredients);
         RecyclerView recyclerViewSteps = (RecyclerView) rootView.findViewById(R.id.rv_detail_steps);
-
+        mIngredientsScrollView = (ScrollView) rootView.findViewById(R.id.sv_ingredients);
         mAdapter = new RecipesDetailAdapter((RecipesDetailAdapter.RecipesDetailAdapterOnClickHandler) getActivity());
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         recyclerViewSteps.setAdapter(mAdapter);
@@ -51,6 +55,7 @@ public class RecipeDetailFragment extends Fragment {
 
         if (savedInstanceState != null) {
             mRecipe = savedInstanceState.getParcelable(KEY_RECIPE_DETAIL_BUNDLE);
+            mIngredientsScrollViewPosition = savedInstanceState.getIntArray(KEY_SCROLL_VIEW_BUNDLE);
         } else {
             mRecipe = getArguments().getParcelable(RecipesActivity.KEY_RECIPE_DETAIL_EXTRA);
         }
@@ -100,14 +105,19 @@ public class RecipeDetailFragment extends Fragment {
                     }
                 }
             }
-            UpdateWidgetService.startUpdateWidgetService(getContext(),ingredientsListString);
+            mIngredientsScrollView.scrollTo(mIngredientsScrollViewPosition[0],mIngredientsScrollViewPosition[1]);
+            UpdateWidgetService.startUpdateWidgetService(getContext(), ingredientsListString);
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (mRecipe != null)
+        if (mRecipe != null) {
+            int[] i = new int[]{mIngredientsScrollView.getScrollX(),
+                    mIngredientsScrollView.getScrollY()};
+            outState.putIntArray(KEY_SCROLL_VIEW_BUNDLE, i);
             outState.putParcelable(KEY_RECIPE_DETAIL_BUNDLE, mRecipe);
+        }
         super.onSaveInstanceState(outState);
     }
 

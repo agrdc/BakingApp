@@ -16,6 +16,7 @@
         android:text="@string/ingredient_list_title" />
 
     <ScrollView
+        android:id="@+id/sv_ingredients"
         android:layout_width="match_parent"
         android:layout_height="140dp"
         android:scrollbarAlwaysDrawVerticalTrack="true">
