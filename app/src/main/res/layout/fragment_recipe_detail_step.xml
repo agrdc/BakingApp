@@ -66,12 +66,5 @@
                 android:gravity="center"
                 android:text="@string/next_step" />
         </LinearLayout>
-
-        <Button
-            android:id="@+id/btn_return_recipe"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="return to recipe" />
     </LinearLayout>
 </ScrollView>

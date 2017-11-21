@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -55,9 +56,12 @@ public class RecipeStepDetailFragment extends Fragment {
     private static String LOG_TAG = RecipeStepDetailFragment.class.getSimpleName();
     public static String KEY_STEP_LIST_DETAIL_BUNDLE = "key-step_list_detail-bundle";
     public static String KEY_STEP_INDEX_DETAIL_BUNDLE = "key-step_index_detail-bundle";
+    public static String KEY_VIDEO_POSITION_BUNDLE = "key-video_position-bundle";
+
     private ArrayList<Step> mStepList;
     private int mStepListIndex;
     private Step mStep;
+    private long mVideoPosition;
     private SimpleExoPlayerView mExoPlayerView;
     private SimpleExoPlayer mExoPlayer;
     private String mVideoURL;
@@ -65,6 +69,25 @@ public class RecipeStepDetailFragment extends Fragment {
     private View mRootView;
     private boolean isFullscreen;
     private boolean isTablet;
+
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        if (!isTablet)
+        setHasOptionsMenu(true);
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                getActivity().getSupportFragmentManager().popBackStack("recipe", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Nullable
     @Override
@@ -91,6 +114,7 @@ public class RecipeStepDetailFragment extends Fragment {
         if (savedInstanceState != null) {
             mStepListIndex = savedInstanceState.getInt(KEY_STEP_INDEX_DETAIL_BUNDLE);
             mStepList = savedInstanceState.getParcelableArrayList(KEY_STEP_LIST_DETAIL_BUNDLE);
+            mVideoPosition = savedInstanceState.getLong(KEY_VIDEO_POSITION_BUNDLE);
         } else {
             mStepListIndex = getArguments().getInt(RecipesActivity.KEY_STEP_INDEX_DETAIL_EXTRA);
             mStepList = getArguments().getParcelableArrayList(RecipesActivity.KEY_STEP_LIST_DETAIL_EXTRA);
@@ -125,7 +149,6 @@ public class RecipeStepDetailFragment extends Fragment {
             if (!isTablet) {
                 Button previousStepButton = (Button) mRootView.findViewById(R.id.btn_previous_step);
                 Button nextStepButton = (Button) mRootView.findViewById(R.id.btn_next_step);
-                Button recipeButton = (Button) mRootView.findViewById(R.id.btn_return_recipe);
                 previousStepButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -163,13 +186,6 @@ public class RecipeStepDetailFragment extends Fragment {
                         }
                     }
                 });
-
-                recipeButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        getActivity().getSupportFragmentManager().popBackStack("recipe", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                    }
-                });
             }
         }
         return mRootView;
@@ -190,15 +206,15 @@ public class RecipeStepDetailFragment extends Fragment {
             ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
             MediaSource videoSource = new ExtractorMediaSource(videoUri,
                     dataSourceFactory, extractorsFactory, null, null);
-            mExoPlayer.prepare(videoSource);
-            mExoPlayer.setPlayWhenReady(true);
-            mExoPlayerView.hideController();
-
             if (isFullscreen && !isTablet) {
                 ((ViewGroup) mExoPlayerView.getParent()).removeView(mExoPlayerView);
                 mFullScreenDialog.addContentView(mExoPlayerView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 mFullScreenDialog.show();
             }
+            mExoPlayer.seekTo(mVideoPosition);
+            mExoPlayer.prepare(videoSource);
+            mExoPlayer.setPlayWhenReady(true);
+            mExoPlayerView.hideController();
         }
     }
 
@@ -214,6 +230,8 @@ public class RecipeStepDetailFragment extends Fragment {
             outState.putParcelableArrayList(KEY_STEP_LIST_DETAIL_BUNDLE, mStepList);
             outState.putInt(KEY_STEP_INDEX_DETAIL_BUNDLE, mStepListIndex);
         }
+        if(mExoPlayer!=null)
+        outState.putLong(KEY_VIDEO_POSITION_BUNDLE,mExoPlayer.getCurrentPosition());
         super.onSaveInstanceState(outState);
     }
 
@@ -223,7 +241,6 @@ public class RecipeStepDetailFragment extends Fragment {
         if (mExoPlayer != null) {
             mExoPlayer.stop();
             mExoPlayer.release();
-            mExoPlayer = null;
         }
     }
 
@@ -233,7 +250,6 @@ public class RecipeStepDetailFragment extends Fragment {
         if (mExoPlayer != null) {
             mExoPlayer.stop();
             mExoPlayer.release();
-            mExoPlayer = null;
         }
     }
 
